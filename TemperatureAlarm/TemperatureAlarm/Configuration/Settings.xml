@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Root>
+  <Alarm>
+    <MaxTemp>8</MaxTemp>
+    <MinTemp>2</MinTemp>
+    <Histeresis>
+      <Hour>0</Hour>
+      <Minute>0</Minute>
+      <Second>30</Second>
+    </Histeresis>
+  </Alarm>
+  <CellCommunicator>
+    <SerialPort>/dev/ttyUSB1</SerialPort>
+    <SerialBaudRate>115200</SerialBaudRate>
+    <SerialReadTimeout>400</SerialReadTimeout>
+    <SmsCheckPeriod>3000</SmsCheckPeriod>
+  </CellCommunicator>
+  <TempMeasurer>
+    <MeasurementPeriod>100</MeasurementPeriod>
+  </TempMeasurer>
+  <Notificator>
+    <TempNotOkMsg>Temperatura poza zakresem. Wynosi obecnie: {0}</TempNotOkMsg>
+    <TempOkMsg>Temperatura w normie. Wynosi obecnie: {0}</TempOkMsg>
+    <StatusMsg>Alarm wlaczony: {0}. Temperatura: {1}</StatusMsg>
+    <StatisticsMsg>Temperatura byla poza zakresem: {0}, alarm trwal: {1}, najnizsza temp {2}, najwyzsza temp {3}</StatisticsMsg>
+    <SensorMalfMsg>Awaria czujnikow.</SensorMalfMsg>
+    <AckCmd>ok</AckCmd>
+    <StatusReqCmd>status</StatusReqCmd>
+    <DisableAlarmCmd>wyl</DisableAlarmCmd>
+    <EnableAlarmCmd>wl</EnableAlarmCmd>
+    <DialDuration>25000</DialDuration>
+    <NextDialInterval>60000</NextDialInterval>
+    <Numbers>
+      <Number>123456789</Number>
+      <Number>987654321</Number>
+    </Numbers>
+  </Notificator>
+  <StatCollector>
+    <PublishPeriod>7</PublishPeriod>
+  </StatCollector>
+</Root>
