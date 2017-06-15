@@ -34,6 +34,12 @@ namespace TemperatureAlarm
       float res = float.Parse (temp) / 1000f;
       return res;
     }
+
+    public void Dispose()
+    {
+      reader.Close();
+      stream.Close();
+    }
   }
 
   public class DS18b20SensorDetector : TempSensorDetector

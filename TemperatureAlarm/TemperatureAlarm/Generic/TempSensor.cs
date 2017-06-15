@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace TemperatureAlarm
 {
-  public interface TempSensor
+  public interface TempSensor : IDisposable
   {
     float GetTemperature();
   }

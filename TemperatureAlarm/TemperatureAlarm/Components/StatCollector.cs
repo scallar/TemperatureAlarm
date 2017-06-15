@@ -7,7 +7,7 @@ namespace TemperatureAlarm
   {
     readonly InPort<StatCollectorData> dataPort;
     readonly InPort<TempData> tempPort;
-    readonly OutPort<StatCollectorNotification> notificationPort;
+    readonly OutPort<Notification> notificationPort;
 
     PeriodicEvent publishStats;
 
@@ -22,7 +22,7 @@ namespace TemperatureAlarm
     {
       dataPort = new StdInPort<StatCollectorData>("DataPort", this, HandleData);
       tempPort = new StdInPort<TempData>("TempPort", this, HandleTempData);
-      notificationPort = new StdOutPort<StatCollectorNotification>("NotificationPort", this);
+      notificationPort = new StdOutPort<Notification>("NotificationPort", this);
       publishStats = new PeriodicEvent(this, PublishStatsAndReset);    
     }
 
@@ -36,7 +36,7 @@ namespace TemperatureAlarm
       get { return tempPort; }
     }
 
-    public OutPort<StatCollectorNotification> NotificationPort
+    public OutPort<Notification> NotificationPort
     {
       get { return notificationPort; }
     }

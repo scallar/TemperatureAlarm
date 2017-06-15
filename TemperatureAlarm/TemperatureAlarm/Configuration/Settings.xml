@@ -1,27 +1,33 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <Root>
   <Alarm>
-    <MaxTemp>8</MaxTemp>
-    <MinTemp>2</MinTemp>
+    <MaxTemp>30</MaxTemp>
+    <MinTemp>0</MinTemp>
     <Histeresis>
       <Hour>0</Hour>
       <Minute>0</Minute>
       <Second>30</Second>
     </Histeresis>
   </Alarm>
+  <PowerAlarm>
+    <MeasurementPeriod>15000</MeasurementPeriod>
+  </PowerAlarm>
   <CellCommunicator>
-    <SerialPort>/dev/ttyUSB1</SerialPort>
+    <SerialPort>/dev/ttyUSB0</SerialPort>
     <SerialBaudRate>115200</SerialBaudRate>
-    <SerialReadTimeout>400</SerialReadTimeout>
-    <SmsCheckPeriod>3000</SmsCheckPeriod>
+    <SerialReadTimeout>2000</SerialReadTimeout>
+    <SmsCheckPeriod>10000</SmsCheckPeriod>
+    <Pin>1234</Pin>
   </CellCommunicator>
   <TempMeasurer>
     <MeasurementPeriod>100</MeasurementPeriod>
   </TempMeasurer>
   <Notificator>
+		<PowerOnMsg>Zasilanie dziala.</PowerOnMsg>
+		<PowerOffMsg>Brak zasilania.</PowerOffMsg>
     <TempNotOkMsg>Temperatura poza zakresem. Wynosi obecnie: {0}</TempNotOkMsg>
     <TempOkMsg>Temperatura w normie. Wynosi obecnie: {0}</TempOkMsg>
-    <StatusMsg>Alarm wlaczony: {0}. Temperatura: {1}</StatusMsg>
+    <StatusMsg>Alarm wlaczony: {0}. Zasilanie {1}. Temperatura: {2}.</StatusMsg>
     <StatisticsMsg>Temperatura byla poza zakresem: {0}, alarm trwal: {1}, najnizsza temp {2}, najwyzsza temp {3}</StatisticsMsg>
     <SensorMalfMsg>Awaria czujnikow.</SensorMalfMsg>
     <AckCmd>ok</AckCmd>
@@ -32,7 +38,6 @@
     <NextDialInterval>60000</NextDialInterval>
     <Numbers>
       <Number>123456789</Number>
-      <Number>987654321</Number>
     </Numbers>
   </Notificator>
   <StatCollector>

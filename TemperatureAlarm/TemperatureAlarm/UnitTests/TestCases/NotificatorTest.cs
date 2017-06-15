@@ -40,7 +40,7 @@ namespace TemperatureAlarm
       confProvider.SetElement("/Notificator/TempOkMsg", "Temp OK {0}");
       confProvider.SetElement("/Notificator/AckCmd", "ok");
       confProvider.SetElement("/Notificator/StatusReqCmd", "status");
-      confProvider.SetElement("/Notificator/StatusMsg", "alarm on: {0} ,tmp: {1}");
+      confProvider.SetElement("/Notificator/StatusMsg", "alarm on: {0} ,power: {1}, tmp: {2}");
       confProvider.SetElement("/Notificator/DisableAlarmCmd", "off");
       confProvider.SetElement("/Notificator/EnableAlarmCmd", "on");
       confProvider.SetElement("/Notificator/Numbers/Number", new List<string>(new string[]{"123","456"}));
@@ -48,6 +48,8 @@ namespace TemperatureAlarm
       confProvider.SetElement("/Notificator/NextDialInterval", 100);
       confProvider.SetElement("/Notificator/SensorMalfMsg", "sensor malfunction");
       confProvider.SetElement("/Notificator/StatisticsMsg", "alarm {0}, wrong temp {1}, lowest {2}, highest {3}");
+      confProvider.SetElement("/Notificator/PowerOffMsg", "power off");
+      confProvider.SetElement("/Notificator/PowerOnMsg", "power on");
 
       notificator.Configure(confProvider);
       notificator.Initialize();

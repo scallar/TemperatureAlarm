@@ -3,7 +3,7 @@ using System;
 
 namespace FooFramework
 {
-  public abstract class Component
+  public abstract class Component : IDisposable
   {
     string name;
     Component parent;
@@ -63,6 +63,13 @@ namespace FooFramework
       foreach (Component child in children)
         child.Configure(cp);    
     }
+
+	public virtual void Dispose()
+	{
+	  Log("Removing component", LogLevel.Medium);
+	  foreach (Component child in children)
+	    child.Dispose ();
+	}
 
     public virtual void Log(string message, 
                             LogLevel level = LogLevel.Low)

@@ -5,11 +5,15 @@ namespace TemperatureAlarm
 {
   public class CellCommunicator : Component
   {
+    const int MAX_RETRY = 2;
+
     readonly InPort<CellCommand> commandPort;
     readonly OutPort<SmsMessage> smsPort;
 
     PeriodicEvent checkSmsEvent;
     SerialModem modem;
+
+    int retryCounter;
 
     public CellCommunicator(string name = "CellCommunicator", Component parent = null) : base(name,parent)
     {
@@ -21,9 +25,11 @@ namespace TemperatureAlarm
     public override void Configure(ConfigurationProvider cp)
     {
       base.Configure(cp);
-      modem = new SerialModem (cp.GetElement<string>(this,"SerialPort"),
-                               cp.GetElement<int>(this,"SerialBaudRate"),
-                               cp.GetElement<int>(this,"SerialReadTimeout"));
+      modem = new SerialModem (cp.GetElement<string>(this, "SerialPort"),
+                               cp.GetElement<int>(this, "SerialBaudRate"),
+                               cp.GetElement<int>(this, "SerialReadTimeout"),
+                               cp.GetElement<int>(this, "Pin")
+                              );
 
       checkSmsEvent.Interval = cp.GetElement<int>(this, "SmsCheckPeriod");
     }
@@ -34,12 +40,20 @@ namespace TemperatureAlarm
       try
       {
         modem.Initialize();
-        checkSmsEvent.Start();
       }
       catch (SerialModemException e)
       {
-        Log(e.Message, LogLevel.Fatal);
+        Log(e.Message, LogLevel.Error);
+        modem.Reinitialize();
       }
+      checkSmsEvent.Start();
+      retryCounter = 0;
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      modem.Dispose();
     }
 
     public InPort<CellCommand> CommandPort
@@ -80,6 +94,7 @@ namespace TemperatureAlarm
       catch (SerialModemException e)
       {
         Log(e.Message, LogLevel.Error);
+        modem.Reinitialize();
       }
     }
 
@@ -93,12 +108,20 @@ namespace TemperatureAlarm
           SendSms((SendSmsCommand)cmd);
         else
           Log("Unsupported CellCommand type !");
+        retryCounter = 0;
       } 
       catch (SerialModemException e)
       {
         Log(e.Message, LogLevel.Error);
+        modem.Reinitialize();
+        if (retryCounter < MAX_RETRY)
+        {
+          commandPort.PutData(cmd);
+          retryCounter++;
+        }
       }
     }
+
   }
 }
 

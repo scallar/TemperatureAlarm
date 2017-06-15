@@ -5,7 +5,7 @@ namespace TemperatureAlarm
 {
   public enum SerialModemExceptionType
   {
-    PortFail, InitFail, SmsSendFail, SmsRcvFail
+    PortFail, NotOk
   }
   public class SerialModemException : Exception
   {
@@ -35,21 +35,16 @@ namespace TemperatureAlarm
         StringBuilder res = new StringBuilder();
         switch (type)
         {
-          case SerialModemExceptionType.InitFail:
-            res.AppendLine("Modem initalization failed !");
+          case SerialModemExceptionType.NotOk:
+            res.AppendLine("AT command not confirmed!");
             break;
           case SerialModemExceptionType.PortFail:
             res.AppendLine("Port initialization failed !");
             break;
-          case SerialModemExceptionType.SmsRcvFail:
-            res.AppendLine("Sms Receiving failed !");
-            break;
-          case SerialModemExceptionType.SmsSendFail:
-            res.AppendLine("Sms Sending failed !");
-            break;
         }
         res.AppendLine("Additional info:");
         res.AppendLine(additionalInfo);
+        res.AppendLine("(Additional info end)");
         return res.ToString();
       }
     }

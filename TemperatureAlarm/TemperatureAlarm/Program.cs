@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using FooFramework;
+using Mono.Unix;
+using System.Threading;
 
 namespace TemperatureAlarm
 {
@@ -24,14 +26,33 @@ namespace TemperatureAlarm
           return;
       }
       //FakeTempSensorHandler.SetSensors(2);
-      //FakeTempSensorHandler.SetTemperature(0, 10.5f);
-      //FakeTempSensorHandler.SetTemperature(1, 10.5f);
+      //FakeTempSensorHandler.SetTemperature(0, 5.0f);
+      //FakeTempSensorHandler.SetTemperature(1, 5.5f);
 
       Root root = new Root();
       ConfigurationProvider conf = new XmlConfigurationProvider(confFile);
+	    UnixSignal[] signals = new UnixSignal[] 
+	    {
+	      new UnixSignal(Mono.Unix.Native.Signum.SIGABRT),
+		    new UnixSignal(Mono.Unix.Native.Signum.SIGTERM),
+	    	new UnixSignal(Mono.Unix.Native.Signum.SIGINT),
+	    	new UnixSignal(Mono.Unix.Native.Signum.SIGUSR1),
+	    	new UnixSignal(Mono.Unix.Native.Signum.SIGQUIT)
+	    };
 
       root.Configure(conf);
       root.Initialize();
+
+      /*Thread.Sleep(5000);
+      Notificator noti = (Notificator)root.GetChildByName("Notificator");
+      SmsMessage msg = new SmsMessage();
+      msg.Number = "+48503601714";
+      msg.Text = "Status";
+      noti.SmsPort.PutData(msg);*/
+
+	    UnixSignal.WaitAny (signals);
+	    root.Dispose();
+	    Environment.Exit(0);
     }
 
     public static void Usage()

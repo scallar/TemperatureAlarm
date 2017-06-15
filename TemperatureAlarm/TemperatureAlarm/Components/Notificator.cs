@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FooFramework;
+using System;
 
 namespace TemperatureAlarm
 {
@@ -8,6 +9,14 @@ namespace TemperatureAlarm
     enum NotificatorState
     {
       Idle, AlarmOn, AlarmAcknowledged
+    }
+
+    [Flags]
+    enum AlarmReason
+    {
+      None = 0,
+      Temperature = 1,
+      Power = 2
     }
 
     readonly InPort<Notification> notificationPort;
@@ -22,6 +31,9 @@ namespace TemperatureAlarm
     string statusMsg;
     string sensorMalfMsg;
     string statisticsMsg;
+    string powerOffMsg;
+    string powerOnMsg;
+
     string ackCmd;
     string statusReqCmd;
     string disableAlarmCmd;
@@ -30,6 +42,7 @@ namespace TemperatureAlarm
     int dialDuration;
 
     NotificatorState state;
+    AlarmReason alarmReason;
     bool alarmingEnabled;
     PeriodicEvent periodicDialEvent;
     int periodicDialIndex;
@@ -62,6 +75,11 @@ namespace TemperatureAlarm
       numbers = cp.GetElements<string> (this, "Numbers/Number");
       dialDuration = cp.GetElement<int> (this, "DialDuration");
 
+      powerOffMsg = cp.GetElement<string> (this, "PowerOffMsg");
+      powerOnMsg = cp.GetElement<string> (this, "PowerOnMsg");
+
+      tempOkMsg = cp.GetElement<string> (this, "TempOkMsg");
+
       periodicDialEvent.Interval = cp.GetElement<int>(this, "NextDialInterval");
     }
 
@@ -70,6 +88,7 @@ namespace TemperatureAlarm
       base.Initialize();
       state = NotificatorState.Idle;
       alarmingEnabled = true;
+      alarmReason = AlarmReason.None;
     }
 
     public InPort<Notification> NotificationPort 
@@ -122,7 +141,9 @@ namespace TemperatureAlarm
     {
       Log(string.Format("Sending status to number: {0}",number),LogLevel.Medium);
       string tmps = string.Join (TEMP_DELIMETER, lastTemp.Temperature);
-      string msgTxt = string.Format (statusMsg, alarmingEnabled ? 1 : 0, tmps);
+      string msgTxt = string.Format (statusMsg, alarmingEnabled ? 1 : 0, 
+                                                alarmReason.HasFlag(AlarmReason.Power) ? 0 : 1, 
+                                                tmps);
       SendSmsCommand cmd = new SendSmsCommand(number, msgTxt);
       commandPort.PutData(cmd);
     }
@@ -134,6 +155,28 @@ namespace TemperatureAlarm
       {
         SendSmsCommand cmd = new SendSmsCommand(number, sensorMalfMsg);
         commandPort.PutData(cmd);
+      }
+    }
+
+    void SendPowerOffMsg ()
+    {
+      Log("Sending poweroff message to subscribers",
+          LogLevel.Medium);
+      foreach (string number in numbers) 
+      {
+        SendSmsCommand cmd = new SendSmsCommand(number, powerOffMsg);
+        commandPort.PutData (cmd);
+      }
+    }
+
+    void SendPowerOnMsg ()
+    {
+      Log("Sending poweron message to subscribers",
+          LogLevel.Medium);
+      foreach (string number in numbers) 
+      {
+        SendSmsCommand cmd = new SendSmsCommand(number, powerOnMsg);
+        commandPort.PutData (cmd);
       }
     }
 
@@ -186,7 +229,10 @@ namespace TemperatureAlarm
       alarmingEnabled = true;
       if (state == NotificatorState.AlarmOn)
       {
-        SendTempNotOkMsg(lastTemp);
+        if (alarmReason.HasFlag(AlarmReason.Temperature))
+          SendTempNotOkMsg(lastTemp);
+        if (alarmReason.HasFlag(AlarmReason.Power))
+          SendPowerOffMsg();
         TogglePeriodicDial();
       }
     }
@@ -199,6 +245,8 @@ namespace TemperatureAlarm
         HandleTempMeasurerNotification((TempMeasurerNotification)data);
       else if (data is StatCollectorNotification)
         HandleStatCollectorNotification((StatCollectorNotification)data);
+      else if (data is PowerAlarmNotification)
+        HandlePowerAlarmNotification((PowerAlarmNotification)data);
       else
         Log(string.Format("Unknown notification: {0}", data), LogLevel.Error);
     }
@@ -212,18 +260,22 @@ namespace TemperatureAlarm
           if (alarmingEnabled)
           {
             SendTempNotOkMsg(data.Data);
-            TogglePeriodicDial();
+            if (state == NotificatorState.Idle)
+              TogglePeriodicDial();
           }
           state = NotificatorState.AlarmOn;
+          alarmReason |= AlarmReason.Temperature;
           break;
         case AlarmNotificationType.OK:
           Log("Temperature is back to normal", LogLevel.Medium);
           if (alarmingEnabled)
-          {
             SendTempOkMsg(data.Data);
+          alarmReason &= ~AlarmReason.Temperature;
+          if (alarmReason == AlarmReason.None)
+          {
+            state = NotificatorState.Idle;
             DisablePeriodicDial();
           }
-          state = NotificatorState.Idle;
           break;
       }
     }
@@ -251,6 +303,35 @@ namespace TemperatureAlarm
 
       SendSmsCommand cmd = new SendSmsCommand(number, msgTxt);
       commandPort.PutData(cmd);
+    }
+
+    void HandlePowerAlarmNotification (PowerAlarmNotification data)
+    {
+      switch (data.Type) 
+      {
+        case PowerAlarmNotificationType.PowerOff:
+          Log("Power is off", LogLevel.Medium);
+          if (alarmingEnabled)
+          {
+            SendPowerOffMsg();
+            if (state == NotificatorState.Idle)
+              TogglePeriodicDial();
+          }
+          state = NotificatorState.AlarmOn;
+          alarmReason |= AlarmReason.Power;
+          break;
+        case PowerAlarmNotificationType.PowerOn:
+          Log("Power is back on", LogLevel.Medium);
+          if (alarmingEnabled)
+            SendPowerOnMsg();
+          alarmReason &= ~AlarmReason.Power;
+          if (alarmReason == AlarmReason.None)
+          {
+            state = NotificatorState.Idle;
+            DisablePeriodicDial();
+          }
+          break;
+      }
     }
 
     void HandleSms(SmsMessage data)

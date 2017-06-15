@@ -7,17 +7,17 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>TemperatureAlarm</RootNamespace>
     <AssemblyName>TemperatureAlarm</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;DEBUG_MODEM;</DefineConstants>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
-    <PlatformTarget>x86</PlatformTarget>
     <NoWarn>0414</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
@@ -32,8 +32,23 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="Mono.Posix" />
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\..\..\usr\lib\mono\4.5\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\NUnit.3.7.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="Raspberry.IO">
+      <HintPath>..\packages\Raspberry.IO.GeneralPurpose.2.4\lib\net40\Raspberry.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO.GeneralPurpose">
+      <HintPath>..\packages\Raspberry.IO.GeneralPurpose.2.4\lib\net40\Raspberry.IO.GeneralPurpose.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO.Interop">
+      <HintPath>..\packages\Raspberry.IO.GeneralPurpose.2.4\lib\net40\Raspberry.IO.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.System">
+      <HintPath>..\packages\Raspberry.System.2.1\lib\net40\Raspberry.System.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -65,11 +80,14 @@
     <Compile Include="Data\StatCollectorData.cs" />
     <Compile Include="Data\StatCollectorNotification.cs" />
     <Compile Include="UnitTests\TestCases\StatCollectorTest.cs" />
+    <Compile Include="LowLevel\PowerMonitor.cs" />
+    <Compile Include="Components\PowerAlarm.cs" />
+    <Compile Include="Data\PowerAlarmNotification.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\FooFramework\FooFramework\FooFramework.csproj">
-      <Project>{7b56e255-6890-4781-aa21-6b8231b22e2c}</Project>
+      <Project>{7B56E255-6890-4781-AA21-6B8231B22E2C}</Project>
       <Name>FooFramework</Name>
     </ProjectReference>
   </ItemGroup>
@@ -77,5 +95,6 @@
     <None Include="Configuration\Settings.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -34,6 +34,14 @@ namespace TemperatureAlarm
       measureEvent.Start();
     }
 
+    public override void Dispose()
+    {
+      base.Dispose();
+      measureEvent.Stop();
+      foreach (TempSensor sensor in sensors)
+        sensor.Dispose();
+    }
+
     void DetectSensors()
     {
       Type[] types = Assembly.GetExecutingAssembly().GetTypes();
