@@ -25,6 +25,8 @@ namespace TemperatureAlarm
       tempPort = new StdInPort<TempData>("TempPort", compStub, outData.Add);
 
       tempPort.Connect(measurer.TempPort);
+
+      measurer.LoggingLevel = LogLevel.Low;
     }
 
     [Test]

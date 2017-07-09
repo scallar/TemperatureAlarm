@@ -26,7 +26,7 @@ namespace TemperatureAlarm
       alarmInPort = new StdOutPort<TempData>("AlarmInPort", compStub);
       alarmOutPort = new StdInPort<Notification>("AlarmOutPort", compStub, outData.Add);
 
-
+      alarm.LoggingLevel = LogLevel.Low;
       alarm.NotificationPort.Connect(alarmOutPort);
       alarm.TempPort.Connect(alarmInPort);
     }

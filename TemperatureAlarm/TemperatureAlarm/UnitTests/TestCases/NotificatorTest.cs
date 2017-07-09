@@ -51,6 +51,8 @@ namespace TemperatureAlarm
       confProvider.SetElement("/Notificator/PowerOffMsg", "power off");
       confProvider.SetElement("/Notificator/PowerOnMsg", "power on");
 
+      notificator.LoggingLevel = LogLevel.Low;
+
       notificator.Configure(confProvider);
       notificator.Initialize();
     }

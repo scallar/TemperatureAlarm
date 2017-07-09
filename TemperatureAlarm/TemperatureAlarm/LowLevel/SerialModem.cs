@@ -20,7 +20,8 @@ namespace TemperatureAlarm
     const string AT_SEND_SMS2 = "{0}\u001a"; //message
     const string AT_DEL_ALL_SMS = "AT+CMGD=0,4\r";
     const string AT_DIAL = "ATD{0};\r"; //number
-    const string AT_HOLD = "AT+CHUP\r";
+    //const string AT_HOLD = "AT+CHUP\r";
+    const string AT_HOLD = "ATH\r";
     const string AT_RECEIVE_SMS = "AT+CMGL=\"ALL\"\r";
     const string AT_BEGIN = "AT\r";
     const string AT_TEXT_MODE = "AT+CMGF=1\r";
@@ -84,9 +85,13 @@ namespace TemperatureAlarm
 
     public void Dial (string number, int duration)
     {
-      SendATCommand (AT_DIAL, number);
+      //SendATCommand (AT_DIAL, number);
+      /*WriteData (string.Format(AT_DIAL, number));
+      ReadData();
       Thread.Sleep (duration);
-      SendATCommand (AT_HOLD);
+      WriteData(AT_HOLD);
+      ReadData();*/
+      //SendATCommand (AT_HOLD);
     }
 
     public void SendSms (string number, string message)

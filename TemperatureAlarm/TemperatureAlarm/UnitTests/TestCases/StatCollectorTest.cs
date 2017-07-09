@@ -34,6 +34,8 @@ namespace TemperatureAlarm
       notificationPort.Connect(statCollector.NotificationPort);
 
       confProvider.SetElement("/StatCollector/PublishPeriod", -1d);
+
+      statCollector.LoggingLevel = LogLevel.Low;
     }
 
     [Test]

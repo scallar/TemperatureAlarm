@@ -7,7 +7,7 @@ namespace TemperatureAlarm
   {
     enum AlarmState 
     {
-      Idle, TempNotOk, AlarmTriggered
+      Idle, TempNotOk, AlarmTriggered, TempOk
     }
 
     readonly InPort<TempData> tempPort;
@@ -18,7 +18,8 @@ namespace TemperatureAlarm
     float minTemp;
     TimeSpan histeresis;
 
-    DateTime start;
+    DateTime tempOkTimeStamp;
+    DateTime tempNokTimestamp;
     AlarmState state;
     bool wrongTemp;
     TempData currentData;
@@ -88,25 +89,25 @@ namespace TemperatureAlarm
     {
       if (wrongTemp)
       {
-         Log(string.Format("Temperature NOT OK - {0}",currentData));
-         start = currentData.Timestamp;
+         Log(string.Format("Temperature is not OK - {0}",currentData));
+         tempNokTimestamp = currentData.Timestamp;
          state = AlarmState.TempNotOk;
       }
     }
 
     void HandleTempNotOkState()
     {
-      TimeSpan span = currentData.Timestamp - start;
+      TimeSpan span = currentData.Timestamp - tempNokTimestamp;
       if (wrongTemp && span >= histeresis)
       {
         Log(string.Format("Calling alarm - {0}", currentData), 
           LogLevel.Medium);
         Alert();
-        start = currentData.Timestamp;
         state = AlarmState.AlarmTriggered;
       }
       else if (!wrongTemp)
       {
+        Log(string.Format("Temperature is back to normal - {0}", currentData));
         state = AlarmState.Idle;
         PublishStatData(AlarmStatData.AlarmStatDataType.TempNotOk, span);
       }
@@ -114,17 +115,27 @@ namespace TemperatureAlarm
 
     void HandleAlarmTriggeredState()
     {
-      TimeSpan span = currentData.Timestamp - start;
+      if (!wrongTemp)
+      {
+        Log(string.Format("Temperature is back to normal - {0}", currentData));
+        state = AlarmState.TempOk;
+        tempOkTimeStamp = currentData.Timestamp;
+      }
+    }
+
+    void HandleTempOkState()
+    {
+      TimeSpan span = currentData.Timestamp - tempOkTimeStamp;
       if (!wrongTemp && span >= histeresis)
       {
         Log(string.Format("Cancelling alarm - {0}", currentData),
-                           LogLevel.Medium);
+            LogLevel.Medium);
         CancelAlert();
         state = AlarmState.Idle;
-        PublishStatData(AlarmStatData.AlarmStatDataType.AlarmOn, span);
+        PublishStatData(AlarmStatData.AlarmStatDataType.AlarmOn, currentData.Timestamp-tempNokTimestamp);
       }
       else if (wrongTemp)
-        start = currentData.Timestamp;
+        state = AlarmState.AlarmTriggered;    
     }
 
     bool CheckTemperature(TempData data)
@@ -150,7 +161,10 @@ namespace TemperatureAlarm
         case AlarmState.AlarmTriggered:
           HandleAlarmTriggeredState();
           break;
-        }
+        case AlarmState.TempOk:
+          HandleTempOkState();
+          break;
+      }
     }
   }
 }

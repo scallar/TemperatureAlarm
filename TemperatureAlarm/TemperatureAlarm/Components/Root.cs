@@ -13,8 +13,8 @@ namespace TemperatureAlarm
 
     public Root(string name = "Root", Component parent = null) : base(name,parent)
     {
-      alarm = new Alarm("Alarm", this);
       cellCommunicator = new CellCommunicator("CellCommunicator", this);
+      alarm = new Alarm("Alarm", this);
       tempMeasurer = new TempMeasurer("TempMeasurer", this);
       notificator = new Notificator("Notificator", this);
       powerAlarm = new PowerAlarm("PowerAlarm", this);

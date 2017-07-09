@@ -52,7 +52,7 @@ namespace TemperatureAlarm
                         Component parent = null) : base (name, parent)
     {
       smsPort = new StdInPort<SmsMessage> ("SmsPort", this, HandleSms);
-      notificationPort = new StdInPort<Notification> ("NotificationPort", this, HandleNofication);
+      notificationPort = new NbInPort<Notification> ("NotificationPort", this, HandleNofication);
       commandPort = new StdOutPort<CellCommand> ("CommandPort", this);
       tempPort = new StdInPort<TempData>("TempPort", this, HandleTempData);
       periodicDialEvent = new PeriodicEvent(this, PeriodicDial);
@@ -297,8 +297,11 @@ namespace TemperatureAlarm
     {
       Log("Sending periodic statistics", LogLevel.Low);
       string number = numbers[0];
-      string msgTxt = string.Format(statisticsMsg, data.WrongTempSpan,
-                         data.AlarmTempSpan, data.LowestTemp, data.HighestTemp);
+      string msgTxt = string.Format(statisticsMsg, 
+                                    data.WrongTempSpan.ToString(@"hh\:mm\:ss"),
+                                    data.AlarmTempSpan.ToString(@"hh\:mm\:ss"), 
+                                    data.LowestTemp, 
+                                    data.HighestTemp);
 
 
       SendSmsCommand cmd = new SendSmsCommand(number, msgTxt);
