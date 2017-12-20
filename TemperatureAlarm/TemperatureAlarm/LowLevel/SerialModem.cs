@@ -11,6 +11,8 @@ namespace TemperatureAlarm
   {
     readonly SerialPort port;
 
+    const int MAX_RETRY = 100;
+
     const string AT_CONFIG_GSM = "AT^SYSCFG=13,1,3FFFFFFF,2,4\r";
     const string AT_DISABLE_HUAWEI_SHIT = "AT^CURC=0\r";
 
@@ -35,8 +37,12 @@ namespace TemperatureAlarm
     public SerialModem (string path, int baudRate, int readTimeout, int pin)
     {
       this.pin = pin;
-      port = new SerialPort (path, baudRate);
+      port = new SerialPort (path, baudRate,Parity.None,8,StopBits.One);
       port.ReadTimeout = readTimeout;
+      port.Handshake = Handshake.XOnXOff;
+      port.DtrEnable = true;
+      port.RtsEnable = true;
+      port.NewLine = Environment.NewLine;
 
       smsRegex = new Regex (SMS_HEADER_REGEX, RegexOptions.Compiled);
     }
@@ -105,8 +111,8 @@ namespace TemperatureAlarm
       do
       {
         res += ReadData ();
-      } while (!res.Contains(AT_OK) && ++retry < 6);
-      if (retry == 6)
+      } while (!res.Contains(AT_OK) && ++retry < MAX_RETRY);
+      if (retry == MAX_RETRY)
         throw new SerialModemException (SerialModemExceptionType.NotOk, res);
     }
 
