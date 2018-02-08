@@ -46,7 +46,7 @@ namespace TemperatureAlarm
       /*Thread.Sleep(5000);
       Notificator noti = (Notificator)root.GetChildByName("Notificator");
       SmsMessage msg = new SmsMessage();
-      msg.Number = "+48503601714";
+      msg.Number = "+123456";
       msg.Text = "Status";
       noti.SmsPort.PutData(msg);*/
 
